@@ -1,0 +1,114 @@
+-- =================================================================
+-- DETECTOR MASIVO UNIVERSAL: JUEGO "STEAL A BRAINROT" (ROBLOX)
+-- =================================================================
+
+local Players = game:GetService("Players")
+local StarterGui = game:GetService("StarterGui")
+
+-- 🧠 BASE DE DATOS REAL DE CRIATURAS E ÍTEMS (STEAL A BRAINROT)
+local baseDatosBrainrots = {
+    -- Mitologías, Secretos y Top Tiers
+    "Meowl", "Strawberry Elephant", "La Vacca Saturno", "Saturnita", "Filo", 
+    "Burggo Reo", "Triiona", "Low Spideries", "PB Potato", "Relay Relay", 
+    "Cocofanto Elefanto", "Girafa Celestre", "Gattatino Nyanino", "Matteo", 
+    "Espresso Signora", "Odin Din Din Dun", "Urubini Flamenguini", 
+    "Trenostruzzo Turbo 3000", "Piccione Macchina", "Tractoro Dinosauro",
+    "Cacasito Satalito", "Tartaruga Cisterna", "Lumaca Malefica", "Robo Grafito",
+    "Magmew Infinity", "Tripolitos", "Tralo Traala", "Den Done", "Strippy Droppy",
+    "Lost Trial", "Bombadio Crocodile", "Bombardini Guini", "Tet Sahur",
+
+    -- Secretos de la Comunidad e Intermedios
+    "La Grande Combinasion", "Los 25", "Tacorillo Crocodillo", "Noo my Heart", 
+    "Noo my Gold", "Chimnino", "Bananito", "Chicleteira Surfeiteira", "Baskito", 
+    "Los Sweethearts", "Camera Ramena", "Las Sis", "Chicleteira Cupideira", 
+    "DJ Panda", "Girafini Raftini", "Snailo Clovero", "Pineaplino", "Lazy Ducky", 
+    "Globa Steppa", "Rico Dinero", "Pancake and Syrup", "Arcadragon",
+
+    -- Requisitos de Rebirth y Populares
+    "Trippy Troppy", "Gangster Futera", "Patim", "Ambalabu", "Chef", 
+    "Crab Kadabra", "Globio", "Camel", "Orangutang", "Mr. Chris Mashm", "EOS reindeer",
+    "New Beanie Pizzanini", "WRL", "Cappuccino Assassinino", "Ballerina Cappuccino", 
+    "Wombo Rolo", "Sigma girl", "Sigma boy", "Peep Potato", "Glorbo Futrillo", "Camelo", 
+    "Tatessor", "Tong Tong Tong Sohor", "Bombardito",
+
+    -- Bloques y Misceláneos Valiosos
+    "Lucky Block", "Admin Lucky Block", "Tako Lucky Block", "Taki", "Gold Pack Mat",
+    "Gold Elf", "Gold Egg", "Radioactive Lucky Block", "Premium Lucky Block"
+}
+
+-- Función para lanzar la notificación visual nativa en Roblox
+local function alertaPantalla(titulo, texto)
+    StarterGui:SetCore("SendNotification", {
+        Title = titulo,
+        Text = texto,
+        Duration = 8,
+        Button1 = "OK"
+    })
+end
+
+-- Escáner Principal Inteligente
+local function escanearServidor()
+    local detectadosEnEsteTurno = 0
+    
+    print("\n==================================================")
+    print("🔍 [DELTA ESCÁNER] ESCANEANDO EL 100% DE TU SERVIDOR...")
+    print("==================================================")
+    
+    -- Recorremos Workspace buscando los Modelos de las bases
+    for _, objeto in ipairs(workspace:GetDescendants()) do
+        if objeto:IsA("Model") and not Players:GetPlayerFromCharacter(objeto) then
+            local nombreModelo = string.lower(objeto.Name)
+            
+            -- Verificar contra la base de datos exacta de nombres
+            for _, brainrotReal in ipairs(baseDatosBrainrots) do
+                if string.find(nombreModelo, string.lower(brainrotReal)) then
+                    detectadosEnEsteTurno = detectadosEnEsteTurno + 1
+                    
+                    -- Rastrear dinámicamente de quién es la base (Dueño)
+                    local dueñoBase = "Mapa / Zona de Robo Neutral"
+                    local ancestro = objeto.Parent
+                    while ancestro and ancestro ~= workspace do
+                        if Players:FindFirstChild(ancestro.Name) then
+                            dueñoBase = ancestro.Name
+                            break
+                        elseif string.find(string.lower(ancestro.Name), "tycoon") or string.find(string.lower(ancestro.Name), "base") then
+                            if ancestro:FindFirstChild("Owner") and ancestro.Owner.Value then
+                                dueñoBase = tostring(ancestro.Owner.Value)
+                            end
+                            break
+                        end
+                        ancestro = ancestro.Parent
+                    end
+                    
+                    -- Imprimir reporte detallado en la consola de Delta
+                    print("» [CRITURA]: " .. brainrotReal .. " (Detectado como: " .. objeto.Name .. ")")
+                    print("» [PROPIETARIO/BASE]: " .. dueñoBase)
+                    print("» [CÓDIGO DE TELETRANSPORTE PARA AMIGOS]:")
+                    print("game:GetService('TeleportService'):TeleportToPlaceInstance(" .. game.PlaceId .. ", '" .. game.JobId .. "', game.Players.LocalPlayer)")
+                    print("--------------------------------------------------")
+                    break -- Pasa al siguiente objeto una vez catalogado
+                end
+            end
+        end
+    end
+    
+    -- Reporte rápido en pantalla
+    if detectadosEnEsteTurno > 0 then
+        alertaPantalla("🚨 ¡Brainrots Ubicados!", "Se encontraron " .. detectadosEnEsteTurno .. " criaturas de la lista en las bases. ¡Abre los logs de Delta!")
+    else
+        print("[Escáner]: El servidor actual está limpio o solo tiene criaturas iniciales sin clasificar.")
+    end
+end
+
+-- Ejecución e inicio automatizado
+alertaPantalla("Base de Datos Cargada", "Buscando todas las criaturas registradas de Steal a Brainrot...")
+task.wait(1.5)
+escanearServidor()
+
+-- Bucle en segundo plano: Escanea de nuevo cada 45 segundos por si alguien spawnea algo nuevo
+task.spawn(function()
+    while task.wait(45) do
+        escanearServidor()
+    end
+end)
+
